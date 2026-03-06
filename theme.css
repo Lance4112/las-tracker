@@ -1,0 +1,95 @@
+/* theme.css */
+:root {
+    --bg-color: #f0f2f5;
+    --text-color: #1c1e21;
+    --container-bg: rgba(255, 255, 255, 0.85);
+    --border-color: rgba(0, 0, 0, 0.1);
+    --header-bg: #ffffff;
+    --grad-1: #ffffff;
+    --grad-2: #dfe6e9;
+}
+
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --text-color: #e4e6eb;
+    --container-bg: rgba(36, 37, 38, 0.85);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --header-bg: #242526;
+    --grad-1: #1e1e1e;
+    --grad-2: #000000;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background 0.3s ease;
+    margin: 0;
+    min-height: 100vh;
+}
+
+body.gradient-active {
+    background: linear-gradient(135deg, var(--grad-1), var(--grad-2)) !important;
+    background-attachment: fixed;
+}
+
+/* Centralized Adaptive Container Style */
+.table-container, section, .settings-content, .save-bar, .profile-card {
+    background: var(--container-bg) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Add this to your theme.css if not already there */
+.card, section, .table-container, .profile-card, .login-container {
+    background: var(--container-bg) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+}
+
+/* Make sure inputs match the theme too */
+input, select, textarea {
+    background: var(--container-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 8px;
+    border-radius: 5px;
+}
+
+/* theme.css - Add this at the bottom */
+button, .btn {
+    background-color: #3498db !important; /* Standout blue */
+    color: #ffffff !important;            /* White text for contrast */
+    padding: 12px 28px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1rem;
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+}
+
+button:hover, .btn:hover {
+    background-color: #2980b9 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+}
+
+/* Ensure global section and card visibility */
+.section, .card, .table-container {
+    background: var(--container-bg) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+    border-radius: 12px;
+}
