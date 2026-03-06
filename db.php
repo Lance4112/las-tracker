@@ -1,21 +1,21 @@
 <?php
-$host = 'localhost';
-$db   = 'prototype'; 
-$user = 'root';
-$pass = ''; 
-$charset = 'utf8mb4';
-
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-$options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES   => false,
-];
+// Use the variables you linked from your MySQL service
+$host = getenv('MYSQLHOST');
+$db   = getenv('MYSQLDATABASE');
+$user = getenv('MYSQLUSER');
+$pass = getenv('MYSQLPASSWORD');
+$port = getenv('MYSQLPORT');
 
 try {
-     // This variable name must match exactly in register_process.php
-     $pdo = new PDO($dsn, $user, $pass, $options);
-} catch (\PDOException $e) {
-     die("Connection failed: " . $e->getMessage());
+    // This is the PDO driver that was missing
+    $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
+    $pdo = new PDO($dsn, $user, $pass);
+    
+    // Set error mode to exception to see actual SQL errors
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    // echo "Connected successfully!"; 
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
 }
 ?>
