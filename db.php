@@ -1,13 +1,15 @@
 <?php
-$conn = mysqli_connect(
-    getenv('MYSQLHOST'), 
-    getenv('MYSQLUSER'), 
-    getenv('MYSQLPASSWORD'), 
-    getenv('MYSQL_DATABASE'), // Matches the name in your screenshot
-    getenv('MYSQLPORT')
-);
+// Matching the exact names from your image_3e5155.png
+$host = getenv('MYSQLHOST');
+$user = getenv('MYSQLUSER');
+$pass = getenv('MYSQLPASSWORD');
+$db   = getenv('MYSQL_DATABASE'); // Note the underscore from your screenshot
+$port = getenv('MYSQLPORT');
+
+$conn = mysqli_connect($host, $user, $pass, $db, $port);
 
 if (!$conn) {
+    // This will show you the real error if it fails again
     die("Connection failed: " . mysqli_connect_error());
 }
 ?>
