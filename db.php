@@ -1,14 +1,15 @@
 <?php
-// Use the internal host to connect within Railway's network
-$conn = mysqli_connect(
-    getenv('MYSQLHOST'),     // Points to mysql.railway.internal
-    getenv('MYSQLUSER'),     // Points to root
-    getenv('MYSQLPASSWORD'), 
-    getenv('MYSQLDATABASE'), // Points to railway
-    getenv('MYSQLPORT')      // Points to 3306
-);
+// These variables are automatically filled by Railway
+$host = getenv('MYSQLHOST');      // This will be 'mysql.railway.internal'
+$user = getenv('MYSQLUSER');      // This will be 'root'
+$pass = getenv('MYSQLPASSWORD'); 
+$db   = getenv('MYSQLDATABASE');  // This will be 'railway'
+$port = getenv('MYSQLPORT');      // This will be '3306'
+
+$conn = mysqli_connect($host, $user, $pass, $db, $port);
 
 if (!$conn) {
-    die("Database Connection Error");
+    die("Connection failed: " . mysqli_connect_error());
 }
 ?>
+
