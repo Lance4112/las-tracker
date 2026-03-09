@@ -3,7 +3,7 @@
 $host = getenv('MYSQLHOST');
 $user = getenv('MYSQLUSER');
 $pass = getenv('MYSQLPASSWORD');
-$db   = getenv('MYSQL_DATABASE'); // Note the underscore from your screenshot
+$db   = getenv('MYSQLDATABASE'); // Note the underscore from your screenshot
 $port = getenv('MYSQLPORT');
 
 $conn = mysqli_connect($host, $user, $pass, $db, $port);
@@ -13,5 +13,6 @@ if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 ?>
+
 
 
