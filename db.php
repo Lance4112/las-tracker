@@ -1,18 +1,20 @@
 <?php
-// Matching the exact names from your image_3e5155.png
-$host = getenv('MYSQLHOST');
-$user = getenv('MYSQLUSER');
-$pass = getenv('MYSQLPASSWORD');
-$db   = getenv('MYSQLDATABASE'); // Note the underscore from your screenshot
-$port = getenv('MYSQLPORT');
+// Matching your exact variables from image_3e4237.png
+$host = getenv('MYSQLHOST');      // Points to mysql.railway.internal
+$user = getenv('MYSQLUSER');      // Points to root
+$pass = getenv('MYSQLPASSWORD'); 
+$db   = getenv('MYSQLDATABASE');  // Matches your new no-underscore setting
+$port = getenv('MYSQLPORT');      // Points to 3306
 
 $conn = mysqli_connect($host, $user, $pass, $db, $port);
 
 if (!$conn) {
-    // This will show you the real error if it fails again
-    die("Connection failed: " . mysqli_connect_error());
+    // This helps us see the real error if it fails
+    error_log("Connection failed: " . mysqli_connect_error());
+    die("Database Connection Error");
 }
 ?>
+
 
 
 
