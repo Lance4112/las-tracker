@@ -1,0 +1,10 @@
+{
+    "name": "lance4112/las-tracker",
+    "description": "LAS Tracker System",
+    "require": {
+        "php": "^8.0"
+    },
+    "scripts": {
+        "start": "php -S 0.0.0.0:$PORT"
+    }
+}
