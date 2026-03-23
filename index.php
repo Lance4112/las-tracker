@@ -56,35 +56,31 @@ if ($isLoggedIn && $role === 'user') {
         :root { --table-sticky-bg: #ffffff; }
         [data-theme="dark"] { --table-sticky-bg: #1e1e1e; }
 
-        /* Theme & Header */
         .theme-toggle-btn { background: var(--container-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 18px; border-radius: 25px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
-        .student-card { display: flex; align-items: center; gap: 25px; margin: 20px 0; padding: 25px; }
+        .student-card { display: flex; align-items: flex-start; gap: 25px; margin: 20px 0; padding: 25px; }
         .profile-img { width: 120px; height: 120px; object-fit: cover; border-radius: 15px; border: 3px solid #3498db; }
         
-        /* Info Badge Styling */
         .info-badge { padding: 4px 12px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; }
         .badge-blue { color: #3498db; background: rgba(52, 152, 219, 0.1); border: 1px solid rgba(52, 152, 219, 0.2); }
         .badge-gray { color: var(--text-color); background: var(--border-color); opacity: 0.9; }
 
-        /* Search Bar & Dynamic Results */
         .home-search-container { max-width: 500px; margin: 0 auto 10px auto; position: relative; }
         .home-search-input { width: 100%; padding: 15px 20px 15px 45px; border-radius: 30px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); font-size: 1rem; outline: none; }
         .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); opacity: 0.5; color: var(--text-color); }
         
-        #searchSuggestions { max-width: 800px; margin: 0 auto; background: var(--container-bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
-        .result-item { padding: 12px 15px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 15px; }
-        .result-item img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #3498db; }
-        .result-item:hover { background: rgba(52, 152, 219, 0.1); }
-
-        /* Table & Sticky Columns */
         .table-container { margin-top: 20px; overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); background: var(--table-sticky-bg); }
         table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1200px; }
         th, td { border: 1px solid var(--border-color); padding: 12px; text-align: center; color: var(--text-color); }
         .sticky-col { position: sticky; left: 0; background-color: var(--table-sticky-bg) !important; z-index: 10; font-weight: bold; border-right: 2px solid var(--border-color); }
         
         .status-pass { color: #27ae60 !important; font-weight: bold; font-size: 1.2rem; }
-        .btn-sm { padding: 5px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85rem; color: white; transition: 0.2s; }
         .logout-link { color: #e74c3c; text-decoration: none; font-weight: bold; margin-left: 15px; }
+
+        /* Restored Upload Form Styles */
+        .upload-form { margin-top: 15px; display: flex; align-items: center; gap: 10px; }
+        .file-input-label { background: #3498db; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: 0.2s; }
+        .file-input-label:hover { background: #2980b9; }
+        .upload-btn { background: #27ae60; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .fade-in { animation: fadeIn 0.3s ease forwards; }
@@ -108,7 +104,17 @@ if ($isLoggedIn && $role === 'user') {
     <main style="padding: 0 5%;">
     <?php if ($isLoggedIn && $user): ?>
         <div class="student-card section">
-            <img src="<?= $profile_pic ?>" alt="Profile" class="profile-img">
+            <div style="text-align: center;">
+                <img src="<?= $profile_pic ?>" alt="Profile" class="profile-img">
+                
+                <form action="upload_handler.php" method="POST" enctype="multipart/form-data" class="upload-form">
+                    <label for="profile_pix" class="file-input-label">
+                        <i class="fas fa-camera"></i> Change
+                    </label>
+                    <input type="file" name="profile_pix" id="profile_pix" style="display: none;" onchange="this.form.submit()">
+                </form>
+            </div>
+
             <div style="flex-grow: 1;">
                 <h1 style="margin:0; color: var(--text-color);"><?= htmlspecialchars($user['username']) ?></h1>
                 
@@ -168,23 +174,19 @@ if ($isLoggedIn && $role === 'user') {
     <?php else: ?>
         <section class="card" style="text-align:center; padding: 60px 20px; margin-top: 50px;">
             <h2 style="margin-bottom: 30px;">Welcome to LAS Tracker</h2>
-            
             <div class="home-search-container">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" id="liveSearch" class="home-search-input" placeholder="Search Name, ID, Email, or Section...">
             </div>
-
             <div id="searchSuggestions"></div>
-
             <div id="studentDetailArea" style="margin-top: 30px;"></div>
-
             <p style="opacity: 0.6; margin-top: 30px;">Authorized personnel? <a href="login.php">Login here</a></p>
         </section>
     <?php endif; ?>
     </main>
 
     <script>
-        // Theme Toggle Logic
+        // Existing JavaScript (Theme, AJAX search, viewStudent)
         const themeBtn = document.getElementById('themeSwitcher');
         const themeLabel = document.getElementById('themeLabel');
         const applyTheme = (theme) => {
@@ -192,16 +194,13 @@ if ($isLoggedIn && $role === 'user') {
             localStorage.setItem('theme', theme);
             themeLabel.innerText = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
         };
-
         const currentTheme = localStorage.getItem('theme') || 'light';
         applyTheme(currentTheme);
-
         themeBtn.addEventListener('click', () => {
             const newTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
             applyTheme(newTheme);
         });
 
-        // AJAX Search & Semester Logic
         const liveSearch = document.getElementById('liveSearch');
         const suggestions = document.getElementById('searchSuggestions');
         const detailArea = document.getElementById('studentDetailArea');
@@ -211,39 +210,23 @@ if ($isLoggedIn && $role === 'user') {
             if(query.length > 1) {
                 fetch(`search_handler.php?q=${encodeURIComponent(query)}&page=${pageNumber}`)
                     .then(res => res.text())
-                    .then(data => {
-                        suggestions.innerHTML = data;
-                    });
+                    .then(data => { suggestions.innerHTML = data; });
             } else {
                 suggestions.innerHTML = "";
                 detailArea.innerHTML = "";
             }
         }
-
-        if(liveSearch) {
-            liveSearch.addEventListener('input', () => searchWithPage(1));
-        }
+        if(liveSearch) { liveSearch.addEventListener('input', () => searchWithPage(1)); }
 
         function viewStudent(id, semester = 1) {
             suggestions.innerHTML = ""; 
-            detailArea.innerHTML = `
-                <div style="padding: 40px; color: var(--text-color);">
-                    <i class="fas fa-circle-notch fa-spin"></i> Loading Semester ${semester} records...
-                </div>`;
-            
+            detailArea.innerHTML = `<div style="padding: 40px; color: var(--text-color);"><i class="fas fa-circle-notch fa-spin"></i> Loading...</div>`;
             fetch(`detail_handler.php?id=${id}&semester=${semester}`)
-                .then(res => {
-                    if (!res.ok) throw new Error('Network response was not ok');
-                    return res.text();
-                })
+                .then(res => res.text())
                 .then(data => {
                     detailArea.innerHTML = data;
                     detailArea.classList.add('fade-in');
                     detailArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                })
-                .catch(err => {
-                    console.error('Fetch error:', err);
-                    detailArea.innerHTML = "<p style='color:#e74c3c; padding: 20px;'>Error: Could not retrieve records.</p>";
                 });
         }
     </script>
