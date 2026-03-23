@@ -3,7 +3,7 @@ require 'db.php';
 
 $query = $_GET['q'] ?? '';
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$limit = 10; 
+$limit = 5; // Reduced to 5 for better UI on search results
 $offset = ($page - 1) * $limit;
 
 if (strlen($query) > 1) {
@@ -20,7 +20,7 @@ if (strlen($query) > 1) {
     $totalResults = $countStmt->fetchColumn();
     $totalPages = ceil($totalResults / $limit);
 
-    // 2. Fetch the actual results for this page
+    // 2. Fetch results with explicit Integer binding for LIMIT/OFFSET
     $stmt = $pdo->prepare("
         SELECT u.*, s.section_name 
         FROM users u 
@@ -29,11 +29,12 @@ if (strlen($query) > 1) {
         AND u.role = 'user'
         LIMIT :limit OFFSET :offset
     ");
+    
     $stmt->bindValue(':q1', $searchTerm, PDO::PARAM_STR);
     $stmt->bindValue(':q2', $searchTerm, PDO::PARAM_STR);
     $stmt->bindValue(':q3', $searchTerm, PDO::PARAM_STR);
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
     $stmt->execute();
     $results = $stmt->fetchAll();
 
@@ -43,6 +44,7 @@ if (strlen($query) > 1) {
                      ? 'uploads/'.$row['profile_pix'] 
                      : 'https://ui-avatars.com/api/?background=random&name='.urlencode($row['username']);
             
+            // Crucial: Use onclick for the result item
             echo "
             <div class='result-item' onclick='viewStudent({$row['id']}, 1)'>
                 <img src='$photo' alt='Profile'>
@@ -55,25 +57,27 @@ if (strlen($query) > 1) {
 
         // 3. Pagination Controls
         if ($totalPages > 1) {
-            echo "<div style='padding: 10px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.05);'>";
+            echo "<div style='padding: 12px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.03); border-top: 1px solid var(--border-color);'>";
             
+            // PREVIOUS BUTTON
             if ($page > 1) {
-                echo "<button onclick='event.stopPropagation(); searchWithPage(".($page - 1).")' style='cursor:pointer; border:none; background:none; color:#3498db;'>← Prev</button>";
+                echo "<button type='button' onclick='event.stopPropagation(); window.searchWithPage(".($page - 1).")' style='cursor:pointer; border:none; background:none; color:#3498db; font-weight:bold;'>← Prev</button>";
             } else {
                 echo "<span></span>"; 
             }
 
-            echo "<span style='font-size: 0.8rem; opacity: 0.6;'>Page $page of $totalPages</span>";
+            echo "<span style='font-size: 0.8rem; opacity: 0.6; color: var(--text-color);'>Page $page of $totalPages</span>";
 
+            // NEXT BUTTON
             if ($page < $totalPages) {
-                echo "<button onclick='event.stopPropagation(); searchWithPage(".($page + 1).")' style='cursor:pointer; border:none; background:none; color:#3498db;'>Next →</button>";
+                echo "<button type='button' onclick='event.stopPropagation(); window.searchWithPage(".($page + 1).")' style='cursor:pointer; border:none; background:none; color:#3498db; font-weight:bold;'>Next →</button>";
             } else {
                 echo "<span></span>";
             }
             echo "</div>";
         }
     } else {
-        echo "<div style='padding: 15px; opacity: 0.6;'>No results found.</div>";
+        echo "<div style='padding: 20px; text-align: center; opacity: 0.6; color: var(--text-color);'>No students found.</div>";
     }
 }
 ?>
