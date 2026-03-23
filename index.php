@@ -56,18 +56,15 @@ if ($isLoggedIn && $role === 'user') {
         :root { --table-sticky-bg: #ffffff; }
         [data-theme="dark"] { --table-sticky-bg: #1e1e1e; }
 
-        /* Header & Theme */
         .theme-toggle-btn { background: var(--container-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 18px; border-radius: 25px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
         .logout-link { color: #e74c3c; text-decoration: none; font-weight: bold; margin-left: 15px; }
 
-        /* Student Card */
         .student-card { display: flex; align-items: flex-start; gap: 25px; margin: 20px 0; padding: 25px; }
         .profile-img { width: 120px; height: 120px; object-fit: cover; border-radius: 15px; border: 3px solid #3498db; }
         .info-badge { padding: 4px 12px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; }
         .badge-blue { color: #3498db; background: rgba(52, 152, 219, 0.1); border: 1px solid rgba(52, 152, 219, 0.2); }
         .badge-gray { color: var(--text-color); background: var(--border-color); opacity: 0.9; }
 
-        /* RESTORED: Search Bar Styles */
         .home-search-container { max-width: 500px; margin: 0 auto 10px auto; position: relative; }
         .home-search-input { width: 100%; padding: 15px 20px 15px 45px; border-radius: 30px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); font-size: 1rem; outline: none; transition: 0.3s; }
         .home-search-input:focus { border-color: #3498db; box-shadow: 0 0 10px rgba(52, 152, 219, 0.2); }
@@ -77,23 +74,19 @@ if ($isLoggedIn && $role === 'user') {
         .result-item { padding: 12px 15px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; display: flex !important; flex-direction: row !important; align-items: center; gap: 15px; }
         .result-item img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #3498db; flex-shrink: 0; }
 
-        /* Semester Buttons */
         .sem-btn { padding: 10px 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-block; }
         .sem-active { background: #3498db; color: white; }
         .sem-inactive { background: var(--border-color); color: var(--text-color); opacity: 0.7; }
 
-        /* Upload Form */
         .upload-form { margin-top: 10px; }
         .file-label { background: #3498db; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.75rem; cursor: pointer; display: inline-block; }
 
-        /* Table Styles */
         .table-container { margin-top: 20px; overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); background: var(--table-sticky-bg); }
         table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1200px; }
         th, td { border: 1px solid var(--border-color); padding: 12px; text-align: center; color: var(--text-color); }
         .sticky-col { position: sticky; left: 0; background-color: var(--table-sticky-bg) !important; z-index: 10; font-weight: bold; border-right: 2px solid var(--border-color); }
         .status-pass { color: #27ae60 !important; font-weight: bold; font-size: 1.2rem; }
 
-        /* RESTORED: Login/Register Link Styles */
         .auth-link { color: #3498db; text-decoration: none; font-weight: bold; transition: 0.2s; }
         .auth-link:hover { text-decoration: underline; }
 
@@ -175,15 +168,12 @@ if ($isLoggedIn && $role === 'user') {
     <?php else: ?>
         <section class="card fade-in" style="text-align:center; padding: 60px 20px; margin-top: 50px;">
             <h2 style="margin-bottom: 30px;">Welcome to LAS Tracker</h2>
-            
             <div class="home-search-container">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" id="liveSearch" class="home-search-input" placeholder="Search Name, ID, or Section...">
             </div>
-
             <div id="searchSuggestions"></div>
             <div id="studentDetailArea" style="margin-top: 30px;"></div>
-
             <p style="opacity: 0.6; margin-top: 30px;">
                 Authorized personnel? <a href="login.php" class="auth-link">Login here</a> or <a href="register.php" class="auth-link">Register</a>
             </p>
@@ -192,35 +182,48 @@ if ($isLoggedIn && $role === 'user') {
     </main>
 
     <script>
+        // Theme Logic
         const themeBtn = document.getElementById('themeSwitcher');
         const themeLabel = document.getElementById('themeLabel');
         const applyTheme = (theme) => {
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('theme', theme);
-            themeLabel.innerText = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+            if(themeLabel) themeLabel.innerText = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
         };
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        applyTheme(currentTheme);
+        applyTheme(localStorage.getItem('theme') || 'light');
         themeBtn.onclick = () => {
             const newTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
             applyTheme(newTheme);
         };
 
-        const liveSearch = document.getElementById('liveSearch');
-        const suggestions = document.getElementById('searchSuggestions');
-        if(liveSearch) {
-            liveSearch.oninput = () => {
-                let query = liveSearch.value;
-                if(query.length > 1) {
-                    fetch(`search_handler.php?q=${encodeURIComponent(query)}`)
-                        .then(res => res.text())
-                        .then(data => { suggestions.innerHTML = data; });
-                } else { suggestions.innerHTML = ""; }
-            };
+        // GLOBAL Search Function (So pagination buttons can find it)
+        window.searchWithPage = function(pageNumber = 1) {
+            const liveSearch = document.getElementById('liveSearch');
+            const suggestions = document.getElementById('searchSuggestions');
+            if(!liveSearch) return;
+
+            let query = liveSearch.value;
+            if(query.length > 1) {
+                fetch(`search_handler.php?q=${encodeURIComponent(query)}&page=${pageNumber}`)
+                    .then(res => res.text())
+                    .then(data => { 
+                        suggestions.innerHTML = data; 
+                    });
+            } else { 
+                suggestions.innerHTML = ""; 
+            }
+        };
+
+        // Event listener for the input field
+        const liveSearchInput = document.getElementById('liveSearch');
+        if(liveSearchInput) {
+            liveSearchInput.oninput = () => window.searchWithPage(1);
         }
 
+        // View Student Logic
         function viewStudent(id, semester = 1) {
-            suggestions.innerHTML = ""; 
+            const suggestions = document.getElementById('searchSuggestions');
+            if(suggestions) suggestions.innerHTML = ""; 
             fetch(`detail_handler.php?id=${id}&semester=${semester}`)
                 .then(res => res.text())
                 .then(data => {
