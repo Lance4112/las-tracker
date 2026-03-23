@@ -2,7 +2,7 @@
 session_start();
 require 'db.php';
 
-// 1. Initialize core variables immediately
+// 1. Initialize core variables
 $isLoggedIn = isset($_SESSION['user_id']);
 $role = $_SESSION['role'] ?? 'guest';
 $user = null;
@@ -33,7 +33,6 @@ if ($isLoggedIn && $role === 'user') {
                         : 'https://ui-avatars.com/api/?background=random&name='.urlencode($user['username']);
 
         $user_grade = $user['grade_level'] ?? 12;
-        // Restored: Logic to filter by Semester, Grade Level, and Strand
         $stmt = $pdo->prepare("
             SELECT s.subject_name, s.type, l.* FROM subjects s 
             LEFT JOIN las_scores l ON s.id = l.subject_id AND l.student_id = ? 
@@ -57,34 +56,49 @@ if ($isLoggedIn && $role === 'user') {
         :root { --table-sticky-bg: #ffffff; }
         [data-theme="dark"] { --table-sticky-bg: #1e1e1e; }
 
+        /* Header & Theme */
         .theme-toggle-btn { background: var(--container-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 18px; border-radius: 25px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
+        .logout-link { color: #e74c3c; text-decoration: none; font-weight: bold; margin-left: 15px; }
+
+        /* Student Card */
         .student-card { display: flex; align-items: flex-start; gap: 25px; margin: 20px 0; padding: 25px; }
         .profile-img { width: 120px; height: 120px; object-fit: cover; border-radius: 15px; border: 3px solid #3498db; }
-        
         .info-badge { padding: 4px 12px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; }
         .badge-blue { color: #3498db; background: rgba(52, 152, 219, 0.1); border: 1px solid rgba(52, 152, 219, 0.2); }
         .badge-gray { color: var(--text-color); background: var(--border-color); opacity: 0.9; }
 
-        /* Search Results Styles */
+        /* RESTORED: Search Bar Styles */
+        .home-search-container { max-width: 500px; margin: 0 auto 10px auto; position: relative; }
+        .home-search-input { width: 100%; padding: 15px 20px 15px 45px; border-radius: 30px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); font-size: 1rem; outline: none; transition: 0.3s; }
+        .home-search-input:focus { border-color: #3498db; box-shadow: 0 0 10px rgba(52, 152, 219, 0.2); }
+        .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); opacity: 0.5; color: var(--text-color); }
+        
         #searchSuggestions { max-width: 500px; margin: 0 auto; background: var(--container-bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
         .result-item { padding: 12px 15px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; display: flex !important; flex-direction: row !important; align-items: center; gap: 15px; }
         .result-item img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #3498db; flex-shrink: 0; }
 
-        /* Semester Buttons Styles */
+        /* Semester Buttons */
         .sem-btn { padding: 10px 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-block; }
         .sem-active { background: #3498db; color: white; }
         .sem-inactive { background: var(--border-color); color: var(--text-color); opacity: 0.7; }
 
+        /* Upload Form */
         .upload-form { margin-top: 10px; }
         .file-label { background: #3498db; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.75rem; cursor: pointer; display: inline-block; }
 
+        /* Table Styles */
         .table-container { margin-top: 20px; overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); background: var(--table-sticky-bg); }
         table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1200px; }
         th, td { border: 1px solid var(--border-color); padding: 12px; text-align: center; color: var(--text-color); }
         .sticky-col { position: sticky; left: 0; background-color: var(--table-sticky-bg) !important; z-index: 10; font-weight: bold; border-right: 2px solid var(--border-color); }
-        
         .status-pass { color: #27ae60 !important; font-weight: bold; font-size: 1.2rem; }
-        .logout-link { color: #e74c3c; text-decoration: none; font-weight: bold; margin-left: 15px; }
+
+        /* RESTORED: Login/Register Link Styles */
+        .auth-link { color: #3498db; text-decoration: none; font-weight: bold; transition: 0.2s; }
+        .auth-link:hover { text-decoration: underline; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease forwards; }
     </style>
 </head>
 <body class="gradient-active">
@@ -104,7 +118,7 @@ if ($isLoggedIn && $role === 'user') {
 
     <main style="padding: 0 5%;">
     <?php if ($isLoggedIn && $user): ?>
-        <div class="student-card section">
+        <div class="student-card section fade-in">
             <div style="text-align: center;">
                 <img src="<?= $profile_pic ?>" alt="Profile" class="profile-img">
                 <form action="upload_handler.php" method="POST" enctype="multipart/form-data" class="upload-form">
@@ -114,21 +128,14 @@ if ($isLoggedIn && $role === 'user') {
             </div>
             <div style="flex-grow: 1;">
                 <h1 style="margin:0; color: var(--text-color);"><?= htmlspecialchars($user['username']) ?></h1>
-                
                 <div style="margin: 12px 0; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
-                    <span class="info-badge badge-blue">
-                        <i class="fas fa-id-card"></i> Student ID: <?= htmlspecialchars($user['student_id_number'] ?? 'N/A') ?>
-                    </span>
-                    <span class="info-badge badge-gray">
-                        <i class="fas fa-graduation-cap"></i> Grade Level: <?= htmlspecialchars($user['grade_level'] ?? '12') ?>
-                    </span>
+                    <span class="info-badge badge-blue"><i class="fas fa-id-card"></i> Student ID: <?= htmlspecialchars($user['student_id_number'] ?? 'N/A') ?></span>
+                    <span class="info-badge badge-gray"><i class="fas fa-graduation-cap"></i> Grade Level: <?= htmlspecialchars($user['grade_level'] ?? '12') ?></span>
                 </div>
-
                 <p style="margin: 5px 0; opacity: 0.8; color: var(--text-color);">
                     <i class="fas fa-envelope"></i> <?= htmlspecialchars($user['email']) ?> | 
                     <i class="fas fa-users"></i> Section: <strong><?= htmlspecialchars($user['section_name'] ?? 'N/A') ?></strong>
                 </p>
-                
                 <div style="margin-top: 20px; display: flex; gap: 10px;">
                     <a href="?semester=1" class="sem-btn <?= $selected_semester == '1' ? 'sem-active' : 'sem-inactive' ?>">1st Semester</a>
                     <a href="?semester=2" class="sem-btn <?= $selected_semester == '2' ? 'sem-active' : 'sem-inactive' ?>">2nd Semester</a>
@@ -136,7 +143,7 @@ if ($isLoggedIn && $role === 'user') {
             </div>
         </div>
 
-        <div class="table-container">
+        <div class="table-container fade-in">
             <table>
                 <thead>
                     <tr>
@@ -146,13 +153,13 @@ if ($isLoggedIn && $role === 'user') {
                 </thead>
                 <tbody>
                     <?php if (empty($records)): ?>
-                        <tr><td colspan="21" style="padding: 40px; opacity: 0.5;">No records for this semester.</td></tr>
+                        <tr><td colspan="21" style="padding: 40px; opacity: 0.5;">No subjects found for Semester <?= htmlspecialchars($selected_semester) ?>.</td></tr>
                     <?php else: ?>
                         <?php foreach ($records as $row): ?>
                             <tr>
                                 <td class="sticky-col" style="text-align: left; background: var(--table-sticky-bg);">
                                     <?= htmlspecialchars($row['subject_name']) ?>
-                                    <small style="display:block; opacity: 0.5; font-weight:normal;"><?= ucfirst($row['type']) ?></small>
+                                    <small style="display:block; opacity: 0.5; font-weight:normal;"><?= ucfirst($row['type'] ?? '') ?></small>
                                 </td>
                                 <?php for($i=1; $i<=20; $i++): 
                                     $val = $row['las_'.$i] ?? ''; ?>
@@ -166,20 +173,25 @@ if ($isLoggedIn && $role === 'user') {
         </div>
 
     <?php else: ?>
-        <section class="card" style="text-align:center; padding: 60px 20px; margin-top: 50px;">
+        <section class="card fade-in" style="text-align:center; padding: 60px 20px; margin-top: 50px;">
             <h2 style="margin-bottom: 30px;">Welcome to LAS Tracker</h2>
+            
             <div class="home-search-container">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" id="liveSearch" class="home-search-input" placeholder="Search Name, ID, or Section...">
             </div>
+
             <div id="searchSuggestions"></div>
             <div id="studentDetailArea" style="margin-top: 30px;"></div>
+
+            <p style="opacity: 0.6; margin-top: 30px;">
+                Authorized personnel? <a href="login.php" class="auth-link">Login here</a> or <a href="register.php" class="auth-link">Register</a>
+            </p>
         </section>
     <?php endif; ?>
     </main>
 
     <script>
-        // JS logic for Theme and Search
         const themeBtn = document.getElementById('themeSwitcher');
         const themeLabel = document.getElementById('themeLabel');
         const applyTheme = (theme) => {
